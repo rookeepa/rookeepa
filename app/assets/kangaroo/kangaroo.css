@@ -1,0 +1,10 @@
+/* Paths are relative to this stylesheet. */
+.kangaroo-logo { display: inline-block; width: 64px; height: 64px; }
+.kangaroo-logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.kangaroo-logo .kangaroo-dark { display: none; }
+[data-theme="dark"] .kangaroo-logo .kangaroo-light { display: none; }
+[data-theme="dark"] .kangaroo-logo .kangaroo-dark { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .kangaroo-logo .kangaroo-light { display: none; }
+  :root:not([data-theme="light"]) .kangaroo-logo .kangaroo-dark { display: block; }
+}

@@ -1,0 +1,906 @@
+/* ==========================================================================
+   Rookeepa — stylesheet
+   One file, no preprocessor, no build. Tokens first, then layout, then the
+   components the UI kit renders. Money is always tabular so columns line up.
+   ========================================================================== */
+
+/* ------------------------------- palettes
+   Colours come from Downloads/palettes.css: light is green and gold, dark is the
+   Australian flag (navy / red / white), with the palette's own vocabulary exposed
+   below (--series-, --seq-, --div-, --grid, --axis) for charts and future data views.
+
+   Two of the palette's text tokens are documented for captions and axis ticks, and
+   neither clears AA when used for running text: light #7A877E is 3.53:1 on the page
+   and 3.75:1 on a card, dark #7382A6 is 4.25:1 on a card. The app uses these levels
+   for hint text and sub-labels, so --text-faint takes an AA-checked sibling of each.
+   The palette's originals are kept verbatim as --neutral / --axis-text for charts,
+   where they label graphics rather than carry the only copy of a sentence. */
+:root {
+  /* ---- surfaces (palette: green and gold) ---- */
+  --bg: #FAF8F0;
+  --surface: #FFFFFF;
+  --surface-2: #F4F1E2;          /* --surface-alt: zebra rows, header, hover */
+  --surface-3: #E2DCC3;          /* --grid, used as a deeper chip / empty-state fill */
+  --border: #E2DCC3;             /* --grid */
+  --border-strong: #C9C1A0;      /* --axis */
+
+  /* ---- text ---- */
+  --text: #13261B;
+  --text-muted: #4A5D51;         /* --text-2: labels and legends */
+  --text-faint: #6B786F;         /* AA 4.97:1 on cards (palette's #7A877E fails at 3.75) */
+
+  /* ---- action ---- */
+  --accent: #00843D;
+  --accent-strong: #0B4F2C;
+  --accent-soft: rgba(0, 132, 61, 0.10);
+  --accent-contrast: #FFFFFF;    /* 4.81:1 on the green */
+  --accent-ink: #0B4F2C;         /* accent used as text on its own tint (4.2:1 otherwise) */
+  --danger-contrast: #FFFFFF;    /* 6.36:1 on the negative red */
+
+  /* ---- status ---- */
+  --positive: #00843D;
+  --positive-soft: rgba(0, 132, 61, 0.12);
+  --negative: #C8312F;           /* the palette's one off-theme colour: down must read as bad */
+  --negative-soft: rgba(200, 49, 47, 0.10);
+  --warn: #8A6500;               /* --gold-text: the gold that passes AA on white */
+  --warn-soft: rgba(242, 184, 0, 0.18);
+  --info: #0B4F2C;
+  --info-soft: rgba(11, 79, 44, 0.10);
+  /* Text on a status tint needs its own value: the green that reads well as a figure on
+     white is only 4.08:1 on its own 12% tint. These are the palette's darker siblings. */
+  --positive-ink: #0B4F2C;
+  --negative-ink: #C8312F;
+  --warn-ink: #8A6500;
+  --info-ink: #0B4F2C;
+
+  /* ---- table header (the palette asks for white on the green) ---- */
+  --table-head: #00843D;
+  --table-head-hover: #0B4F2C;
+  --table-head-ink: #FFFFFF;
+
+  /* ---- sidebar ---- */
+  --sidebar-bg: #0B4F2C;
+  --sidebar-text: #F2F5FA;
+  --sidebar-muted: #A9C9B4;      /* 5.39:1 on the bottle green */
+  --sidebar-active: rgba(255, 255, 255, 0.12);
+
+  /* ---- palette vocabulary: charts assign series by entity, never by rank ---- */
+  --surface-alt: #F4F1E2;
+  --grid: #E2DCC3;
+  --axis: #C9C1A0;
+  --axis-text: #7A877E;
+  --text-2: #4A5D51;
+  --neutral: #7A877E;
+  --highlight: #00843D;
+  --warning: #F2B800;
+  --gold-text: #8A6500;
+  --series-1: #00843D;  --series-2: #F2B800;  --series-3: #0B4F2C;
+  --series-4: #8A6500;  --series-5: #6CBF8C;  --series-6: #9AA59D;
+  --seq-1: #FFF3BF;  --seq-2: #F2D65C;  --seq-3: #9CC266;  --seq-4: #3C9B5A;  --seq-5: #00602C;
+  --div-neg-2: #C8312F;  --div-neg-1: #E8A09A;  --div-mid: #EFECE0;
+  --div-pos-1: #8CCBA3;  --div-pos-2: #00843D;
+
+  /* ---- geometry ---- */
+  --shadow-1: 0 1px 2px rgba(19, 38, 27, 0.06), 0 1px 3px rgba(19, 38, 27, 0.04);
+  --shadow-2: 0 12px 32px rgba(19, 38, 27, 0.16), 0 2px 8px rgba(19, 38, 27, 0.08);
+  --radius: 10px;
+  --radius-sm: 7px;
+  --radius-lg: 14px;
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.8125rem;
+  --fs-md: 0.875rem;
+  --fs-lg: 1rem;
+  --fs-xl: 1.25rem;
+  --fs-2xl: 1.5rem;
+  --sidebar-w: 236px;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* The dark palette is written out twice on purpose: once for the system preference
+   and once for an explicit choice, matching the selector split below. Keep them in
+   step — the browser test compares token values across both paths. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A1430;                 /* deep navy page */
+    --surface: #111E42;            /* cards, table body */
+    --surface-2: #18285A;          /* --surface-alt: zebra rows, header, hover */
+    --surface-3: #1C2E66;          /* --seq-1, a deeper navy for chips */
+    --border: #26386E;             /* --grid */
+    --border-strong: #3A4E8C;      /* --axis */
+    --text: #F2F5FA;               /* Southern Cross white */
+    --text-muted: #A9B4CC;         /* --text-2 */
+    --text-faint: #7E8CAE;         /* AA 4.85:1 on cards (palette's #7382A6 is 4.25) */
+    --accent: #4F8DFF;             /* flag blue, lifted */
+    --accent-strong: #9EC0FF;
+    --accent-soft: rgba(79, 141, 255, 0.16);
+    --accent-contrast: #0A1430;    /* 5.70:1 on the lifted blue */
+    --accent-ink: #9EC0FF;
+    --danger-contrast: #0A1430;    /* white on the lifted flag red is only 3.24:1 */
+    --positive: #3FD49A;           /* the palette's one off-flag colour: up reads as good */
+    --positive-soft: rgba(63, 212, 154, 0.16);
+    --negative: #FF4D5E;           /* flag red, lifted */
+    --negative-soft: rgba(255, 77, 94, 0.14);
+    --warn: #F2B800;               /* gold borrowed from the light palette: the flag red already means negative */
+    --warn-soft: rgba(242, 184, 0, 0.16);
+    --info: #9EC0FF;
+    --info-soft: rgba(158, 192, 255, 0.14);
+    --positive-ink: #3FD49A;
+    --negative-ink: #FFA3AE;     /* the soft red, because the flag red is 4.36:1 on its own tint */
+    --warn-ink: #F2B800;
+    --info-ink: #9EC0FF;
+    --table-head: #18285A;
+    --table-head-hover: #1C2E66;
+    --table-head-ink: #A9B4CC;
+    --sidebar-bg: #111E42;
+    --sidebar-text: #F2F5FA;
+    --sidebar-muted: #8C97B3;      /* 6.22:1 on the navy */
+    --sidebar-active: rgba(255, 255, 255, 0.08);
+    --surface-alt: #18285A;
+    --grid: #26386E;
+    --axis: #3A4E8C;
+    --axis-text: #7382A6;
+    --text-2: #A9B4CC;
+    --neutral: #8C97B3;
+    --highlight: #FF4D5E;
+    --warning: #F2B800;
+    --gold-text: #F2B800;
+    --series-1: #F2F5FA;  --series-2: #FF4D5E;  --series-3: #4F8DFF;
+    --series-4: #FFA3AE;  --series-5: #9EC0FF;  --series-6: #8C97B3;
+    --seq-1: #1C2E66;  --seq-2: #2D4C9E;  --seq-3: #4F8DFF;  --seq-4: #9EC0FF;  --seq-5: #E8EEF9;
+    --div-neg-2: #FF4D5E;  --div-neg-1: #FFA3AE;  --div-mid: #2A3558;
+    --div-pos-1: #9EC0FF;  --div-pos-2: #4F8DFF;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-2: 0 18px 40px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* The app's theme is its own, but native widgets (the date picker's calendar glyph, its popup, scrollbars)
+   follow whatever `color-scheme` says. Without this, a dark operating system and the light theme left a white
+   calendar glyph on a white field. */
+:root { color-scheme: light dark; }
+[data-theme="light"] { color-scheme: light; }
+[data-theme="dark"] { color-scheme: dark; }
+
+[data-theme="dark"] {
+  --bg: #0A1430;
+  --surface: #111E42;
+  --surface-2: #18285A;
+  --surface-3: #1C2E66;
+  --border: #26386E;
+  --border-strong: #3A4E8C;
+  --text: #F2F5FA;
+  --text-muted: #A9B4CC;
+  --text-faint: #7E8CAE;
+  --accent: #4F8DFF;
+  --accent-strong: #9EC0FF;
+  --accent-soft: rgba(79, 141, 255, 0.16);
+  --accent-contrast: #0A1430;
+  --accent-ink: #9EC0FF;
+  --danger-contrast: #0A1430;
+  --positive: #3FD49A;
+  --positive-soft: rgba(63, 212, 154, 0.16);
+  --negative: #FF4D5E;
+  --negative-soft: rgba(255, 77, 94, 0.14);
+  --warn: #F2B800;
+  --warn-soft: rgba(242, 184, 0, 0.16);
+  --info: #9EC0FF;
+  --info-soft: rgba(158, 192, 255, 0.14);
+  --positive-ink: #3FD49A;
+  --negative-ink: #FFA3AE;
+  --warn-ink: #F2B800;
+  --info-ink: #9EC0FF;
+  --table-head: #18285A;
+  --table-head-hover: #1C2E66;
+  --table-head-ink: #A9B4CC;
+  --sidebar-bg: #111E42;
+  --sidebar-text: #F2F5FA;
+  --sidebar-muted: #8C97B3;
+  --sidebar-active: rgba(255, 255, 255, 0.08);
+  --surface-alt: #18285A;
+  --grid: #26386E;
+  --axis: #3A4E8C;
+  --axis-text: #7382A6;
+  --text-2: #A9B4CC;
+  --neutral: #8C97B3;
+  --highlight: #FF4D5E;
+  --warning: #F2B800;
+  --gold-text: #F2B800;
+  --series-1: #F2F5FA;  --series-2: #FF4D5E;  --series-3: #4F8DFF;
+  --series-4: #FFA3AE;  --series-5: #9EC0FF;  --series-6: #8C97B3;
+  --seq-1: #1C2E66;  --seq-2: #2D4C9E;  --seq-3: #4F8DFF;  --seq-4: #9EC0FF;  --seq-5: #E8EEF9;
+  --div-neg-2: #FF4D5E;  --div-neg-1: #FFA3AE;  --div-mid: #2A3558;
+  --div-pos-1: #9EC0FF;  --div-pos-2: #4F8DFF;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-2: 0 18px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* --------------------------------------------------------------- resets */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: var(--fs-md);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 { margin: 0; font-weight: 620; letter-spacing: -0.01em; }
+p { margin: 0 0 0.5rem; }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+.skip-link {
+  position: absolute; left: -9999px; top: 0; background: var(--surface); color: var(--text);
+  padding: 0.5rem 0.75rem; z-index: 100; border-radius: 0 0 var(--radius-sm) 0;
+}
+.skip-link:focus { left: 0; }
+
+.noscript { max-width: 34rem; margin: 15vh auto; padding: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+
+/* --------------------------------------------------------------- layout */
+
+.app-shell { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: var(--sidebar-w);
+  flex: 0 0 var(--sidebar-w);
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh;
+}
+.sidebar-head { padding: 0.9rem 0.85rem 0.7rem; }
+.brand { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: #fff; margin-bottom: 0.85rem; }
+/* The wrapper is the pack's .kangaroo-logo (64px, and it switches variant by theme), so
+   the size override has to out-specify it rather than merely come later. */
+.kangaroo-logo.brand-mark {
+  width: 28px; height: 28px; flex: 0 0 auto; border-radius: 7px;
+}
+.brand-name { font-weight: 640; letter-spacing: -0.01em; }
+.brand-tag { display: block; font-size: 0.6rem; color: var(--sidebar-muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+.company-switcher {
+  width: 100%; display: flex; align-items: center; gap: 0.5rem; justify-content: space-between;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+  color: var(--sidebar-text); border-radius: var(--radius-sm); padding: 0.45rem 0.55rem;
+  cursor: pointer; font-size: var(--fs-sm); text-align: left;
+}
+.company-switcher:hover { background: rgba(255,255,255,0.1); }
+.company-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 560; }
+
+.nav { flex: 1; overflow-y: auto; padding: 0.5rem 0.5rem 1rem; }
+.nav-group-label {
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--sidebar-muted); padding: 0.85rem 0.6rem 0.3rem; font-weight: 600;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 0.6rem; width: 100%;
+  padding: 0.5rem 0.6rem; border: 0; border-radius: var(--radius-sm);
+  background: transparent; color: var(--sidebar-text); cursor: pointer;
+  font-size: var(--fs-sm); text-align: left; text-decoration: none;
+}
+.nav-item:hover { background: rgba(255,255,255,0.05); }
+.nav-item.is-active { background: var(--sidebar-active); color: #fff; font-weight: 580; }
+.nav-item svg { flex: 0 0 auto; opacity: 0.85; }
+.nav-badge {
+  margin-left: auto; background: rgba(255,255,255,0.14); border-radius: 999px;
+  padding: 0 0.4rem; font-size: 0.68rem; min-width: 1.35rem; text-align: center;
+}
+.nav-badge.alert { background: var(--negative); color: #fff; }
+
+.sidebar-foot { padding: 0.7rem; border-top: 1px solid rgba(255,255,255,0.07); font-size: var(--fs-xs); color: var(--sidebar-muted); }
+.sidebar-foot .save-state { display: flex; align-items: center; gap: 0.35rem; }
+/* Ghost buttons take the page's text colour by default, which against the sidebar is
+   nearly the same luminance as its background — invisible in the light palette (1.37:1)
+   and poor in the dark one. Inside the sidebar they use the sidebar's own ink instead. */
+.sidebar .btn-ghost { color: var(--sidebar-muted); border-color: rgba(255, 255, 255, 0.16); }
+.sidebar .btn-ghost:hover { color: var(--sidebar-text); background: var(--sidebar-active); }
+/* The "another tab is saving" notice: deliberately visible, since the failure mode it
+   prevents is silent — edits that never reach storage. */
+.lease-notice {
+  margin: 0 0.6rem 0.6rem; padding: 0.6rem 0.65rem; display: grid; gap: 0.4rem;
+  border: 1px solid var(--warn); border-radius: var(--radius-sm); background: var(--warn-soft);
+}
+.lease-notice strong { font-size: var(--fs-sm); }
+.lease-notice .small { font-size: var(--fs-xs); line-height: 1.4; }
+.lease-notice .btn { justify-self: start; }
+/* The explanation is the point of this notice, not a caption: it needs the sidebar's own
+   ink on the warning tint (6.6:1 in light) rather than a muted colour that reads at 1:1. */
+.lease-notice .small { color: var(--sidebar-text); }
+.save-dot.warn { background: var(--warn); }
+.save-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--positive); flex: 0 0 auto; }
+.save-dot.error { background: var(--negative); }
+.save-dot.saving { background: var(--warn); }
+
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.content { padding: 1.15rem 1.5rem 4rem; max-width: 1400px; width: 100%; }
+
+.page-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+  margin-bottom: 1.1rem; flex-wrap: wrap;
+}
+.page-head-main { display: flex; flex-direction: column; gap: 0.15rem; }
+.page-title { font-size: var(--fs-2xl); letter-spacing: -0.02em; }
+.page-sub { color: var(--text-muted); font-size: var(--fs-sm); margin: 0; }
+.page-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.btn-back { margin-left: -0.4rem; padding-left: 0.35rem; }
+
+.breadcrumb { display: flex; align-items: center; gap: 0.35rem; font-size: var(--fs-xs); color: var(--text-faint); }
+.breadcrumb button { background: none; border: 0; color: var(--text-muted); cursor: pointer; padding: 0; }
+.breadcrumb button:hover { color: var(--accent); }
+
+/* ---------------------------------------------------------------- cards */
+
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-1); margin-bottom: 1rem; overflow: hidden;
+}
+.card-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem;
+  padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); background: var(--surface);
+}
+.card-title { font-size: var(--fs-lg); margin: 0; }
+.card-sub { color: var(--text-muted); font-size: var(--fs-sm); margin: 0.1rem 0 0; }
+.card-actions { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+.card-body { padding: 1rem; }
+.card-body-flush { padding: 0; }
+.card-body-flush .table-wrap { border: 0; border-radius: 0; }
+
+.help-dot {
+  display: inline-grid; place-items: center; width: 15px; height: 15px; margin-left: 0.35rem;
+  border-radius: 50%; background: var(--surface-3); color: var(--text-faint);
+  font-size: 0.62rem; font-weight: 700; cursor: help; vertical-align: middle;
+}
+
+.grid { display: grid; gap: 1rem; }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.grid-4 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.stat-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(178px, 1fr)); margin-bottom: 1rem; }
+
+/* -------------------------------------------------------------- buttons */
+
+.btn {
+  display: inline-flex; align-items: center; gap: 0.4rem; justify-content: center;
+  border: 1px solid var(--border-strong); background: var(--surface); color: var(--text);
+  border-radius: var(--radius-sm); padding: 0.42rem 0.75rem; cursor: pointer;
+  font-size: var(--fs-sm); font-weight: 540; white-space: nowrap; text-decoration: none;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
+}
+.btn:hover { background: var(--surface-3); }
+.btn:active { transform: translateY(1px); }
+.btn[disabled], .btn[aria-busy="true"] { opacity: 0.55; cursor: not-allowed; }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+.btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--text-muted); }
+.btn-ghost:hover { background: var(--surface-3); color: var(--text); }
+.btn-danger { background: var(--negative); border-color: var(--negative); color: var(--danger-contrast); }
+.btn-danger:hover { filter: brightness(1.06); }
+.btn-subtle { background: var(--surface-2); border-color: var(--border); }
+.btn-sm { padding: 0.28rem 0.55rem; font-size: var(--fs-xs); }
+.btn-lg { padding: 0.6rem 1rem; font-size: var(--fs-md); }
+.btn-icon { padding: 0.3rem; }
+.btn-group { display: inline-flex; gap: 0.35rem; align-items: center; }
+.link { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font-size: inherit; text-align: left; }
+.link:hover { text-decoration: underline; }
+
+/* --------------------------------------------------------------- tables */
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+.table caption { text-align: left; padding: 0.6rem 0.75rem; color: var(--text-muted); font-size: var(--fs-xs); }
+.table th, .table td { padding: 0.5rem 0.7rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }
+/* Money and other right-aligned columns: `.table td` above is more specific than
+   a bare `.col-right`/`.num`, which left every amount in these tables stuck on the
+   left edge. Match the cell selector so amounts line up and can be scanned. */
+.table th.col-right, .table td.col-right, .table th.num, .table td.num,
+.table tfoot th.col-right, .table tfoot td.col-right, .table tfoot th.num, .table tfoot td.num {
+  text-align: right;
+  white-space: nowrap;
+}
+.table thead th {
+  position: sticky; top: 0; z-index: 1; background: var(--table-head); color: var(--table-head-ink);
+  font-weight: 600; font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.table thead th.sortable { cursor: pointer; user-select: none; }
+.table thead th.sortable:hover { color: var(--table-head-ink); background: var(--table-head-hover); }
+.table thead th.sortable svg { opacity: 0.4; margin-left: 0.2rem; vertical-align: -1px; }
+.table tbody tr:last-child td { border-bottom: 0; }
+.table tbody tr.clickable { cursor: pointer; }
+.table tbody tr.clickable:hover { background: var(--surface-2); }
+.table tbody tr.is-selected { background: var(--accent-soft); }
+.table tfoot td { border-top: 1px solid var(--border-strong); border-bottom: 0; font-weight: 620; background: var(--surface-2); }
+.table-compact th, .table-compact td { padding: 0.32rem 0.55rem; }
+.table-empty { text-align: center; color: var(--text-muted); padding: 1.6rem 1rem; font-style: normal; }
+.col-right { text-align: right; }
+.col-center { text-align: center; }
+/* The palette asks for tabular figures wherever numbers are compared down a column. */
+table, .stat-grid, .num, .mono { font-variant-numeric: tabular-nums lining-nums; }
+.num.neg { color: var(--negative-ink); }
+/* Variance on a report: colour by whether the movement is good news for that account, with
+   an arrow so the direction is not carried by colour alone. */
+.num.var-good { color: var(--positive); }
+.num.var-bad { color: var(--negative); }
+.var-arrow { font-size: 0.85em; }
+.num.muted { color: var(--text-muted); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.nowrap { white-space: nowrap; }
+.small { font-size: var(--fs-xs); }
+.muted { color: var(--text-muted); }
+/* The sidebar is dark in both themes, so a caption inside it must not take the page's
+   muted colour: in the light theme that is a dark grey-green and it disappears against the
+   sidebar (1.02:1 on the read-only notice, about 1.3:1 on the company ABN under the name). */
+.sidebar .muted { color: var(--sidebar-muted); }
+.faint { color: var(--text-faint); }
+.strong { font-weight: 620; }
+.right { text-align: right; }
+.row-title { font-weight: 560; }
+.row-sub { color: var(--text-muted); font-size: var(--fs-xs); }
+
+.table-actions { display: flex; gap: 0.25rem; justify-content: flex-end; }
+
+/* --------------------------------------------------------------- badges */
+
+.badge {
+  display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.12rem 0.45rem;
+  border-radius: 999px; font-size: var(--fs-xs); font-weight: 580; white-space: nowrap;
+  background: var(--surface-3); color: var(--text-muted); border: 1px solid transparent;
+}
+.badge-positive { background: var(--positive-soft); color: var(--positive-ink); }
+.badge-negative { background: var(--negative-soft); color: var(--negative-ink); }
+.badge-warn { background: var(--warn-soft); color: var(--warn-ink); }
+.badge-info { background: var(--info-soft); color: var(--info-ink); }
+.badge-accent { background: var(--accent-soft); color: var(--accent-ink); }
+.badge-muted { background: var(--surface-3); color: var(--text-muted); }
+
+.pill { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 999px; background: var(--surface-3); font-size: var(--fs-xs); color: var(--text-muted); }
+
+/* ---------------------------------------------------------------- forms */
+
+.field { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.7rem; min-width: 0; }
+.field-inline { flex-direction: row; align-items: center; gap: 0.5rem; }
+.field-label { font-size: var(--fs-xs); font-weight: 600; color: var(--text-muted); }
+.req { color: var(--negative); margin-left: 0.15rem; }
+.field-hint { font-size: var(--fs-xs); color: var(--text-muted); margin: 0; }
+.field-error { font-size: var(--fs-xs); color: var(--negative); margin: 0; }
+/* Business logo picker: a small preview next to the file control. */
+.logo-slot { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; min-height: 34px; }
+.logo-preview {
+  max-height: 48px; max-width: 160px; object-fit: contain;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); padding: 3px;
+}
+
+.input {
+  width: 100%; padding: 0.42rem 0.55rem; border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm); background: var(--surface); color: var(--text);
+  font-size: var(--fs-sm); font-family: inherit; min-width: 0;
+}
+.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.input[disabled] { background: var(--surface-3); color: var(--text-muted); }
+.textarea { resize: vertical; line-height: 1.45; }
+.input-money, .input-qty, .input-date { font-variant-numeric: tabular-nums; font-family: var(--mono); }
+.input-money, .input-qty { text-align: right; }
+.select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--text-muted) 50%), linear-gradient(135deg, var(--text-muted) 50%, transparent 50%); background-position: calc(100% - 15px) 51%, calc(100% - 10px) 51%; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; padding-right: 1.6rem; }
+
+.checkbox-wrap, .radio-wrap { display: flex; align-items: center; gap: 0.45rem; font-size: var(--fs-sm); cursor: pointer; }
+.checkbox, .radio { accent-color: var(--accent); width: 15px; height: 15px; }
+.radio-group { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+.segmented { display: inline-flex; background: var(--surface-3); border-radius: var(--radius-sm); padding: 2px; gap: 2px; }
+.segmented-item { border: 0; background: transparent; padding: 0.28rem 0.65rem; border-radius: 5px; cursor: pointer; font-size: var(--fs-xs); font-weight: 560; color: var(--text-muted); }
+.segmented-item.is-active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1); }
+
+.form-grid { display: grid; gap: 0 0.85rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.form-row { display: flex; gap: 0.85rem; flex-wrap: wrap; }
+.form-row > * { flex: 1 1 160px; }
+
+/* -------------------------------------------------------------- toolbar */
+
+.toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 0.75rem; margin-bottom: 0.85rem; flex-wrap: wrap; row-gap: 0.5rem;
+}
+.toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; row-gap: 0.4rem; }
+.search-box { position: relative; display: flex; align-items: center; }
+.search-box svg { position: absolute; left: 8px; color: var(--text-faint); pointer-events: none; }
+.search-box .input { padding-left: 1.85rem; min-width: 165px; }
+
+/* A clear control beside a field, in normal flow: positioned inside, it sat on the border and ate the room a
+   placeholder needed. */
+.field-clear {
+  border: 0; background: none; cursor: pointer; color: var(--text-faint);
+  font-size: 0.95rem; line-height: 1; padding: 0.15rem 0.2rem; border-radius: 999px; flex: none;
+}
+.field-clear:hover { color: var(--text); background: var(--surface-2, rgba(127,127,127,0.14)); }
+.with-clear { display: inline-flex; align-items: center; gap: 1px; }
+
+/* The total of a ticked batch, at the top of the bar. */
+.bulk-sum { display: flex; gap: 0.25rem; align-items: baseline; flex-wrap: wrap; font-size: var(--fs-sm); margin-bottom: 0.4rem; }
+
+/* Back to top: out of the way until a page is long enough for it to be useful. */
+.to-top {
+  position: fixed; right: 1.1rem; bottom: 1.1rem; z-index: 40;
+  width: 2.4rem; height: 2.4rem; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--card); color: var(--text);
+  font-size: 1.1rem; line-height: 1; display: grid; place-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.18); opacity: 0; pointer-events: none; transition: opacity 0.15s ease;
+}
+.to-top.visible { opacity: 1; pointer-events: auto; }
+
+.tabs { display: flex; gap: 0.25rem; border-bottom: 1px solid var(--border); margin-bottom: 0.9rem; overflow-x: auto; }
+.tab {
+  border: 0; background: none; padding: 0.5rem 0.7rem; cursor: pointer; color: var(--text-muted);
+  font-size: var(--fs-sm); font-weight: 560; border-bottom: 2px solid transparent; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 0.35rem;
+}
+.tab:hover { color: var(--text); }
+.tab.is-active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-count { background: var(--surface-3); border-radius: 999px; padding: 0 0.35rem; font-size: 0.68rem; color: var(--text-muted); }
+
+/* --------------------------------------------------------------- states */
+
+.empty { text-align: center; padding: 2.25rem 1rem; color: var(--text-muted); }
+.empty-icon { display: grid; place-items: center; width: 44px; height: 44px; margin: 0 auto 0.7rem; border-radius: 12px; background: var(--surface-3); color: var(--text-faint); }
+.empty h3 { font-size: var(--fs-md); color: var(--text); margin-bottom: 0.2rem; }
+.empty p { max-width: 34rem; margin: 0 auto 0.8rem; font-size: var(--fs-sm); }
+
+.banner { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.7rem 0.85rem; border-radius: var(--radius); background: var(--info-soft); border: 1px solid transparent; margin-bottom: 1rem; font-size: var(--fs-sm); }
+.banner-icon { color: var(--info); margin-top: 0.1rem; }
+.banner-body { flex: 1; }
+.banner-body p { margin: 0.15rem 0 0; color: var(--text-muted); }
+.banner-actions { display: flex; gap: 0.4rem; }
+.banner-warning { background: var(--warn-soft); }
+.banner-warning .banner-icon { color: var(--warn); }
+.banner-negative { background: var(--negative-soft); }
+.banner-negative .banner-icon { color: var(--negative); }
+.banner-positive { background: var(--positive-soft); }
+.banner-positive .banner-icon { color: var(--positive); }
+
+.loading { display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); padding: 1.5rem; justify-content: center; font-size: var(--fs-sm); }
+.spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border-strong); border-top-color: var(--accent); animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ------------------------------------------------------------------ kpi */
+
+.kpi {
+  display: flex; flex-direction: column; gap: 0.15rem; text-align: left;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 0.8rem 0.9rem; box-shadow: var(--shadow-1); font: inherit; color: inherit;
+}
+.kpi.clickable { cursor: pointer; }
+.kpi.clickable:hover { border-color: var(--accent); }
+.kpi-label { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 580; }
+.kpi-value { font-size: var(--fs-xl); font-weight: 640; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.kpi-sub { font-size: var(--fs-xs); color: var(--text-faint); }
+.kpi-positive .kpi-value { color: var(--positive); }
+.kpi-negative .kpi-value { color: var(--negative); }
+.kpi-warn .kpi-value { color: var(--warn); }
+.kpi-accent .kpi-value { color: var(--accent); }
+
+.kv { display: grid; grid-template-columns: minmax(120px, 38%) 1fr; gap: 0.3rem 0.75rem; margin: 0; font-size: var(--fs-sm); }
+.kv dt { color: var(--text-muted); }
+.kv dd { margin: 0; }
+
+.section-title { margin: 1.4rem 0 0.6rem; }
+.section-title h2 { font-size: var(--fs-lg); }
+.section-title p { color: var(--text-muted); font-size: var(--fs-sm); margin: 0.1rem 0 0; }
+
+/* --------------------------------------------------------------- modals */
+
+.overlays { position: relative; z-index: 60; }
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(9, 13, 18, 0.45); backdrop-filter: blur(2px);
+  display: flex; align-items: flex-start; justify-content: center; padding: 4vh 1rem 2rem; overflow-y: auto;
+  animation: fade 0.12s ease;
+}
+@keyframes fade { from { opacity: 0; } }
+.modal {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2); width: 100%; max-width: 640px; animation: pop 0.14s ease;
+  display: flex; flex-direction: column; max-height: 92vh;
+}
+@keyframes pop { from { transform: translateY(-6px) scale(0.995); opacity: 0; } }
+.modal-sm { max-width: 440px; }
+.modal-md { max-width: 640px; }
+.modal-lg { max-width: 900px; }
+.modal-xl { max-width: 1120px; }
+.modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; padding: 0.9rem 1rem; border-bottom: 1px solid var(--border); }
+.modal-title { font-size: var(--fs-lg); }
+.modal-sub { color: var(--text-muted); font-size: var(--fs-sm); margin: 0.1rem 0 0; }
+.modal-body { padding: 1rem; overflow-y: auto; }
+.modal-foot { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 0.75rem 1rem; border-top: 1px solid var(--border); background: var(--surface-2); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+.confirm-message { margin-bottom: 0.5rem; }
+.confirm-detail { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.6rem 0.7rem; font-size: var(--fs-sm); }
+
+/* --------------------------------------------------------------- toasts */
+
+.toasts { position: fixed; right: 1rem; bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 80; max-width: min(420px, calc(100vw - 2rem)); }
+.toast {
+  display: flex; align-items: flex-start; gap: 0.55rem; background: var(--surface);
+  border: 1px solid var(--border); border-left: 3px solid var(--info);
+  border-radius: var(--radius); box-shadow: var(--shadow-2); padding: 0.65rem 0.8rem;
+  animation: slide 0.16s ease; font-size: var(--fs-sm);
+}
+@keyframes slide { from { transform: translateX(12px); opacity: 0; } }
+.toast.leaving { opacity: 0; transform: translateX(12px); transition: all 0.2s ease; }
+.toast-success { border-left-color: var(--positive); }
+.toast-success .toast-icon { color: var(--positive); }
+.toast-error { border-left-color: var(--negative); }
+.toast-error .toast-icon { color: var(--negative); }
+.toast-warn { border-left-color: var(--warn); }
+.toast-warn .toast-icon { color: var(--warn); }
+.toast-icon { margin-top: 0.1rem; }
+.toast-body { display: flex; flex-direction: column; gap: 0.1rem; flex: 1; }
+.toast-message { font-weight: 540; }
+.toast-detail { color: var(--text-muted); font-size: var(--fs-xs); }
+
+/* ------------------------------------------------------------- pager etc */
+
+.pager { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.2rem; font-size: var(--fs-xs); color: var(--text-muted); }
+.pager-info, .pager-page { font-variant-numeric: tabular-nums; }
+.avatar {
+  display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent-ink); font-size: 0.68rem; font-weight: 640; flex: 0 0 auto;
+}
+.progress { height: 6px; border-radius: 999px; background: var(--surface-3); overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 999px; }
+
+.bar-chart { display: flex; align-items: flex-end; gap: 0.4rem; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; min-width: 0; height: 100%; }
+.bar-track { flex: 1; width: 100%; display: flex; align-items: flex-end; }
+.bar-fill { width: 100%; background: var(--accent); border-radius: 3px 3px 0 0; min-height: 2px; }
+/* Series colours come from the palette, which fixes the order and says to assign them
+   by entity: income and expenses are two entities, so they take series 1 and 2. In the
+   light palette that is green and gold (gold being a fill colour, which a bar is); in
+   the flag palette, white and red. A negative bar always wins and reads as negative. */
+.bar-fill.bar-series-1 { background: var(--series-1); }
+/* The palette's gold is a low-contrast mark against a white card (about 1.75:1, under
+   the 3:1 that WCAG asks of a meaningful graphic). The palette already pairs gold with
+   its ochre for this reason, so the gold fill keeps an ochre edge and the bar reads as
+   a defined shape. The hue is unchanged. */
+.bar-fill.bar-series-2 { background: var(--series-2); box-shadow: inset 0 0 0 1px var(--series-4); }
+.bar-negative { background: var(--negative); }
+.bar-label { font-size: 0.62rem; color: var(--text-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+
+/* --------------------------------------------------------------- welcome */
+
+.welcome { max-width: 900px; margin: 6vh auto; padding: 0 1.25rem; }
+.welcome-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); padding: 1.75rem; }
+.welcome h1 { font-size: 1.75rem; margin-bottom: 0.35rem; }
+.welcome-lead { color: var(--text-muted); max-width: 46rem; margin-bottom: 1.25rem; }
+.welcome-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin: 1.25rem 0; }
+/* The mark sits half off the edge of the card and behind its text: large and cropped, so
+   it reads as part of the page rather than an illustration competing with the heading.
+   The wrapper is the pack's .kangaroo-logo, which switches variant by theme, so the size
+   override has to out-specify it rather than merely come later. */
+.has-watermark { position: relative; overflow: hidden; }
+.kangaroo-logo.page-watermark {
+  /* Sized by height so it always fits the card and is only cropped at the side. Cropping
+     it top and bottom as well reads as an accident rather than a deliberate bleed. */
+  position: absolute; top: 50%; right: 0; height: min(420px, 96%); width: auto;
+  aspect-ratio: 1; transform: translate(50%, -50%);
+  opacity: 0.12; pointer-events: none; user-select: none; z-index: 0;
+}
+.has-watermark > *:not(.page-watermark) { position: relative; z-index: 1; }
+@media (max-width: 720px) {
+  .kangaroo-logo.page-watermark { height: min(280px, 96%); opacity: 0.09; }
+}
+.feature-list { display: grid; gap: 0.6rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin: 1rem 0 0; padding: 0; list-style: none; }
+.feature-list li { display: flex; gap: 0.5rem; font-size: var(--fs-sm); color: var(--text-muted); }
+.feature-list svg { color: var(--accent); flex: 0 0 auto; margin-top: 0.15rem; }
+
+/* --------------------------------------------------------- documents UI */
+
+.doc-editor { display: flex; flex-direction: column; gap: 0; }
+.doc-head-grid { display: grid; gap: 0 1rem; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); padding: 1rem; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+.doc-lines { padding: 0; }
+.line-row { display: grid; grid-template-columns: minmax(150px, 2.6fr) 168px 78px 108px 64px 74px 112px 108px 30px; gap: 0.4rem; align-items: center; padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--border); }
+.line-row.header { background: var(--surface-2); font-size: var(--fs-xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; position: sticky; top: 0; z-index: 1; }
+.line-row .input { padding: 0.3rem 0.45rem; }
+.line-num { color: var(--text-faint); font-size: var(--fs-xs); text-align: right; font-variant-numeric: tabular-nums; }
+.doc-totals { display: flex; justify-content: flex-end; padding: 0.9rem 1rem; gap: 2rem; border-top: 1px solid var(--border); background: var(--surface-2); flex-wrap: wrap; }
+.totals-table { min-width: 280px; display: grid; grid-template-columns: 1fr auto; gap: 0.3rem 1.5rem; font-size: var(--fs-sm); }
+.totals-table .total-row { font-weight: 640; font-size: var(--fs-md); border-top: 1px solid var(--border-strong); padding-top: 0.35rem; margin-top: 0.15rem; }
+.totals-table .num { text-align: right; }
+.line-picker { max-height: 60vh; overflow-y: auto; }
+.tax-breakdown { font-size: var(--fs-xs); color: var(--text-muted); }
+.wide-field { grid-column: span 2; }
+@media (max-width: 900px) {
+  .line-row { grid-template-columns: 1fr 80px 100px 110px 34px; }
+  .line-row .col-discount { display: none; }
+}
+
+/* ------------------------------------------------------------ printing */
+
+.print-root { display: none; }
+.printing .app-shell, .printing .overlays, .printing .toasts { display: none !important; }
+.printing .print-root { display: block; }
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; color: #000; }
+  .sidebar, .page-actions, .toasts, .toolbar, .modal-backdrop, .overlays { display: none !important; }
+}
+
+.doc-print { padding: 0; color: #111; font-size: 12px; }
+.doc-print-head { display: flex; justify-content: space-between; gap: 2rem; border-bottom: 2px solid #111; padding-bottom: 0.75rem; margin-bottom: 1rem; }
+.doc-print-business { font-size: 13px; }
+.doc-print-business h2 { font-size: 17px; margin-bottom: 0.15rem; }
+.doc-print-title { text-align: right; }
+.doc-print-title h1 { font-size: 22px; letter-spacing: 0.02em; margin-bottom: 0.3rem; }
+.doc-print-meta { display: flex; justify-content: space-between; gap: 2rem; margin-bottom: 1.1rem; }
+.doc-print-meta dl { display: grid; grid-template-columns: auto auto; gap: 0.1rem 0.7rem; margin: 0; }
+.doc-print-meta dt { color: #555; }
+.doc-print-meta dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.doc-print table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.doc-print th { text-align: left; border-bottom: 1px solid #111; padding: 0.35rem 0.4rem; }
+.doc-print td { padding: 0.32rem 0.4rem; border-bottom: 1px solid #e5e5e5; }
+.doc-print .num { text-align: right; font-variant-numeric: tabular-nums; }
+.doc-print-totals { margin-top: 0.75rem; display: flex; justify-content: flex-end; }
+.doc-print-totals table { width: auto; min-width: 260px; }
+.doc-print-totals td { border: 0; padding: 0.15rem 0.4rem; }
+.doc-print-totals .grand td { border-top: 2px solid #111; font-weight: 700; font-size: 13px; }
+.doc-print-footer { margin-top: 1.5rem; border-top: 1px solid #ddd; padding-top: 0.6rem; color: #555; font-size: 11px; }
+.doc-print-paid { color: #00843D; font-weight: 700; }
+/* A business logo at the top of its own invoices. Constrained so a tall or very wide image
+   cannot push the document's details off the page. */
+.doc-print-logo { display: block; max-height: 74px; max-width: 240px; margin-bottom: 0.5rem; object-fit: contain; }
+
+/* --------------------------------------------------------- responsive */
+
+@media (max-width: 880px) {
+  .app-shell { flex-direction: column; }
+  .sidebar { position: static; width: 100%; flex: none; height: auto; }
+  .nav { display: flex; gap: 0.25rem; overflow-x: auto; padding: 0.4rem 0.5rem; }
+  .nav-group-label { display: none; }
+  .nav-item { white-space: nowrap; }
+  .content { padding: 1rem 0.9rem 3rem; }
+  .page-title { font-size: var(--fs-xl); }
+}
+
+/* --------------------------------------------------- small utilities */
+
+.stack { display: flex; flex-direction: column; gap: 0.75rem; }
+.row { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.row-between { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
+.spacer { flex: 1; }
+.divider { height: 1px; background: var(--border); margin: 1rem 0; }
+.hidden { display: none !important; }
+.report-note { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 0.75rem; line-height: 1.45; }
+.report-head { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; margin-bottom: 0.75rem; flex-wrap: wrap; }
+.report-title-block h2 { font-size: var(--fs-lg); }
+.report-title-block p { color: var(--text-muted); font-size: var(--fs-sm); margin: 0; }
+.report-check { display: inline-flex; align-items: center; gap: 0.3rem; font-size: var(--fs-xs); color: var(--positive); }
+.report-check.bad { color: var(--negative); }
+.totals-card { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; }
+.totals-card .t { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.6rem 0.7rem; }
+.totals-card .t span { display: block; font-size: var(--fs-xs); color: var(--text-muted); }
+.totals-card .t strong { font-size: var(--fs-lg); font-variant-numeric: tabular-nums; }
+.danger-zone { border-color: var(--negative-soft); }
+.danger-zone .card-head { background: var(--negative-soft); }
+
+/* One condition in the bank-rule editor: what to look at, how to compare it, the value, and — for
+   an amount bracket — the second value. Plus Remove once there is more than one condition. It wraps
+   on a narrow window rather than squeezing five controls into a strip too small to read. */
+.condition-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+.condition-row .field { margin: 0; }
+@media (max-width: 720px) {
+  .condition-row { grid-template-columns: 1fr; }
+}
+
+/* The amount range beside the search box on the transactions screen: two small boxes with a word
+   between them, sized to money rather than to the widest thing they could hold. */
+.amount-range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.amount-range input {
+  /* Room for the placeholder in the *content* box: the field's own padding comes out of the width, so 11ch still
+     left "Amount from" one character short. These sit on the second line on a laptop, where there is room. */
+  width: 13ch;
+  min-width: 0;
+}
+/* A date box is sized by its own content — squeezing it clipped Chrome's calendar button away entirely. */
+.amount-range input[type="date"] { width: 12ch; }
+.amount-range input[aria-label="Exclude a word"] { width: 8.5ch; }
+.amount-range { flex-wrap: wrap; row-gap: 6px; }
+
+/* One split in the categorise dialog: account, tax code, amount, note, and Remove. Same shape as the
+   bank-rule condition row, wrapping rather than squeezing. */
+.split-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+.split-row .field { margin: 0; }
+@media (max-width: 820px) {
+  .split-row { grid-template-columns: 1fr 1fr; }
+}
+
+/* A type-ahead account box: the datalist does the filtering, so this only needs to say "this is a text
+   box that expects an account" and to mark text that matches no account. */
+.account-picker input.input-account {
+  width: 100%;
+}
+.account-picker input.input-account.is-unknown {
+  border-color: var(--danger, #b3261e);
+}
+
+/* The panel under the bank table for the open line: the line named, then its choices, each with a line
+   of explanation so the right one can be picked without knowing the app's vocabulary first. It reuses
+   the audited `muted small` classes for the notes rather than inventing colours. */
+.line-panel {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+}
+.line-choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 8px;
+}
+.line-choice {
+  text-align: left;
+  display: grid;
+  gap: 2px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+}
+.line-choice:hover, .line-choice:focus-visible { border-color: var(--accent); }
+.line-choice-label { font-weight: 600; }
+
+/* Which way a column is sorted, shown on the column itself. The table carries aria-sort for assistive
+   technology and for a screen that rebuilt itself from a remembered sort; this is the visible half, so a
+   correctly-ordered list never leaves you guessing which column is doing it. */
+th[aria-sort="ascending"] .th-label::after { content: ' ↑'; }
+th[aria-sort="descending"] .th-label::after { content: ' ↓'; }
+
+/* A split line on a Spend money / Receive money entry: the account, its amount, its tax code and its own
+   note, with a way to take the line away again once there is more than one. */
+.split-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1.1fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+.split-row .field { margin: 0; }
+.split-row + .split-row { margin-top: 8px; }
+.split-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+@media (max-width: 900px) {
+  .split-row { grid-template-columns: 1fr 1fr; }
+}
+
+/* How a line stands against the books, in the expanded panel. Set apart from the actions below it, because
+   it answers a different question: what this line is — or could be — ticked off against. */
+.line-recon {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 8px;
+  padding: 8px 10px;
+  border-left: 2px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+}
+.line-recon .report-note { margin: 0; }

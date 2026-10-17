@@ -1,0 +1,52 @@
+name: Deploy to GitHub Pages
+
+# Rookeepa is a static site: no build step, no dependencies. This workflow just
+# publishes the repository as-is, so what you see locally is what ships.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify the test suite before publishing
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
+
+      - name: Assemble the site
+        run: |
+          mkdir -p dist
+          cp index.html dist/
+          cp faq.html dist/
+          cp -R app dist/
+          # The app's About panel links to these, so they ship with the site: a link to a file
+          # that was never published is a 404 waiting for the first person to click it.
+          mkdir -p dist/docs
+          cp -R docs/. dist/docs/
+          cp README.md LICENSE dist/
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4

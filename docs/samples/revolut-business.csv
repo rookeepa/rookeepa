@@ -1,0 +1,4 @@
+Date started (UTC),Date completed (UTC),ID,Type,Description,Reference,Payer,Card number,Orig currency,Orig amount,Payment currency,Amount,Fee,Balance,Account,Beneficiary account number,Beneficiary sort code or routing number,Beneficiary IBAN,Beneficiary BIC
+2026-09-28 09:12:00,2026-09-28 09:12:05,tx_1,CARD_PAYMENT,"Tesco Stores 3421",,,"4111",GBP,42.10,GBP,-42.10,0.00,3957.90,GBP Main,,,,,
+2026-09-29 14:03:00,2026-09-29 14:03:02,tx_2,TRANSFER,"ACME PTY LTD INV-1042",INV-1042,ACME PTY LTD,,GBP,1210.00,GBP,1210.00,1.50,5167.90,GBP Main,,,,,
+2026-09-30 08:00:00,2026-09-30 08:00:01,tx_3,FEE,"Monthly plan fee",,,,GBP,-15.00,GBP,-15.00,0.00,5152.90,GBP Main,,,,,

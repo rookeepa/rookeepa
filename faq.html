@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rookeepa — frequently asked questions</title>
+<meta name="description" content="Straight answers about Rookeepa: what it costs, where your books live, what it does and does not do, and what happens when something goes wrong.">
+<style>
+  :root {
+    --bg: #0f1115; --card: #161a21; --text: #e7e9ee; --muted: #a2a9b8; --border: #262c37;
+    --accent: #7cc4a5; --link: #8fb8ff;
+  }
+  @media (prefers-color-scheme: light) {
+    :root { --bg: #f7f7f5; --card: #ffffff; --text: #1a1d23; --muted: #5b6270; --border: #e2e2de; --accent: #1f6b52; --link: #1a4fb4; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 2.5rem 1.25rem 5rem;
+  }
+  main { max-width: 46rem; margin: 0 auto; }
+  h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 0.35rem; letter-spacing: -0.01em; }
+  .lede { color: var(--muted); margin: 0 0 2.2rem; }
+  a { color: var(--link); }
+  section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; margin: 0 0 0.9rem; }
+  h2 { font-size: 1.02rem; margin: 0 0 0.45rem; letter-spacing: -0.005em; }
+  p { margin: 0 0 0.6rem; }
+  p:last-child { margin-bottom: 0; }
+  .answer { color: var(--text); }
+  .no { border-left: 3px solid #d08b5b; }
+  .yes { border-left: 3px solid var(--accent); }
+  footer { margin-top: 2.5rem; color: var(--muted); font-size: 0.9rem; }
+  .back { display: inline-block; margin-bottom: 1.5rem; color: var(--muted); text-decoration: none; font-size: 0.9rem; }
+  .back:hover { color: var(--text); }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="./">← Rookeepa</a>
+  <h1>Questions people actually ask</h1>
+  <p class="lede">Short answers, including the ones that are “no”. If something here is wrong, it is a bug — <a href="https://github.com/rookeepa/rookeepa/issues">tell us</a>.</p>
+
+  <section class="yes">
+    <h2>Is it really free? What’s the catch?</h2>
+    <p class="answer">It is free, and the whole thing is free — not a free tier with a paid upgrade. MIT licensed, no account, no subscription, no card. There is no catch, because there is no bill to pay: it is a static website that runs in your browser, so it costs us almost nothing to keep online.</p>
+    <p>You can read every line of it, or clone it and host your own copy.</p>
+  </section>
+
+  <section>
+    <h2>Where do my books live?</h2>
+    <p class="answer">In your browser’s own storage on your computer. Not on a server of ours — there isn’t one. That is why there is no login: nothing to log in to.</p>
+    <p>The trade-off is real: clearing your browser’s site data, or using a private window, takes the books with it. Back up.</p>
+  </section>
+
+  <section>
+    <h2>Can I lose my data? How do I back up?</h2>
+    <p class="answer">Yes, if you don’t back up — that is the honest answer. Two ways to protect yourself:</p>
+    <p><strong>Settings → Download backup</strong> gives you one JSON file. Keep it somewhere that is not the same laptop.</p>
+    <p><strong>Settings → Automatic backup</strong> writes your books, and your files, into a folder you choose, every fifteen minutes, while the page is open. Chrome and Edge on a desktop only — Safari and Firefox have no way to write to a folder.</p>
+  </section>
+
+  <section class="no">
+    <h2>Does it connect to the ATO, or lodge anything?</h2>
+    <p class="answer">No. It works out your GST and the activity statement boxes from your own ledger, and that is all. You or your accountant lodge.</p>
+  </section>
+
+  <section class="no">
+    <h2>Does it do payroll?</h2>
+    <p class="answer">No. Single Touch Payroll is not in it. If you employ people, you still need something else for that — and this won’t replace it.</p>
+  </section>
+
+  <section class="no">
+    <h2>Does it have a live bank feed?</h2>
+    <p class="answer">No. You import a statement as CSV from your bank, and reconcile the lines against it. A live feed needs a bank agreement and a server, which is exactly the thing this app is designed not to need.</p>
+  </section>
+
+  <section>
+    <h2>Is it really double-entry, or a spreadsheet with labels?</h2>
+    <p class="answer">Really double-entry. Every posting goes through a journal, the reports are built from the ledger, and the balance sheet balances — there is a test suite that checks exactly that. No balance is stored on a document; the journal is the only source of truth.</p>
+  </section>
+
+  <section>
+    <h2>Is my data secure?</h2>
+    <p class="answer">Nothing leaves your computer by itself: no telemetry, no analytics, no third parties. It cannot be hacked through a server because there is no server holding it.</p>
+    <p>The honest limit: <strong>the backup file is not encrypted</strong>. Anyone you send it to can read it. Send it the way you would send a bank statement.</p>
+  </section>
+
+  <section>
+    <h2>Can my accountant use it?</h2>
+    <p class="answer">They can read your books, but not by logging in — there are no logins. You give them a file: the backup, which they restore into their own copy of Rookeepa, or the reports as CSV. <a href="https://github.com/rookeepa/rookeepa/blob/main/docs/SHARING-WITH-AN-ACCOUNTANT.md">Sharing with an accountant</a> explains both, and what to be careful about.</p>
+  </section>
+
+  <section>
+    <h2>Can I use it on two computers?</h2>
+    <p class="answer">Yes, as one at a time. Point both at the same backup folder and each writes its own file, so neither overwrites the other; to move between them, save on one and open the newest backup on the other. It is not live sync — two people cannot work in the same books at once.</p>
+  </section>
+
+  <section class="no">
+    <h2>Can two people use it at the same time?</h2>
+    <p class="answer">No. One browser, one copy of the books, one writer at a time. Two tabs are handled (the second opens read-only), but two <em>people</em> are not.</p>
+  </section>
+
+  <section>
+    <h2>Why only Chrome and Edge for the folder backup?</h2>
+    <p class="answer">Because writing to a folder of your choosing is a browser feature only those two implement on the desktop. Safari and Firefox have no way to do it at all. Everywhere else, the export buttons are the answer.</p>
+  </section>
+
+  <section class="yes">
+    <h2>Can I self-host it, or fork it?</h2>
+    <p class="answer">Yes — that is the point of MIT. It is a static site with no build step and no dependencies: fork the repository, turn on GitHub Pages, and you have your own copy at your own address. Anyone who uses the template gets their own repository, private or public as they prefer.</p>
+  </section>
+
+  <section>
+    <h2>Who makes it, and is it tax advice?</h2>
+    <p class="answer">One person, in the open, with the code on GitHub. It is a calculation aid and <strong>not tax advice</strong> — check the figures, or have your accountant check them, before you rely on them for anything that matters.</p>
+  </section>
+
+  <footer>
+    <p><a href="./">Rookeepa</a> · <a href="./app/">Open the app</a> · <a href="https://github.com/rookeepa/rookeepa">Source on GitHub</a></p>
+  </footer>
+</main>
+</body>
+</html>

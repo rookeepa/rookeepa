@@ -1,0 +1,102 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  unit:
+    name: Unit tests (money, ledger, reports)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run the accounting test suite
+        run: npm test
+      - name: Check every module parses and has no top-level side effects
+        run: |
+          set -e
+          for f in app/core/*.js app/ui/*.js; do
+            node --input-type=module -e "import('./$f').then(() => console.log('ok  $f')).catch((e) => { console.error('FAIL $f', e.message); process.exit(1); })"
+          done
+
+      - name: Check every screen exports render()
+        run: |
+          set -e
+          # The list is read from the app's own route table: a hardcoded list silently skipped
+          # whichever screen was added last, which is exactly when a check is most useful.
+          views=$(node -e "
+            const src = require('fs').readFileSync('app/main.js', 'utf8');
+            const block = src.match(/const VIEWS = \{([\s\S]*?)\n\};/)[1];
+            process.stdout.write(Array.from(block.matchAll(/^\s*([a-zA-Z0-9_-]+):/gm), (m) => m[1]).join(' '));
+          ")
+          echo "screens declared in main.js: $views"
+          test -n "$views" || { echo 'FAIL could not read the screen list from main.js'; exit 1; }
+          for v in $views; do
+            node --input-type=module -e "import('./app/ui/$v.js').then((m) => { if (typeof m.render !== 'function') { console.error('FAIL $v has no render()'); process.exit(1); } console.log('ok  $v ->', m.meta?.title || '(no title)'); })"
+          done
+
+      - name: Check that every link resolves
+        run: node scripts/check-links.mjs
+
+      - name: Check the site structure (front page at /, app at /app/)
+        run: |
+          set -e
+          # The front page is static and must lead to the app under app/, which must be
+          # a real shell that loads the module entry point. This is load-bearing now, so
+          # a restructure that breaks it fails here rather than on the live site.
+          test -f index.html || { echo 'FAIL no root index.html'; exit 1; }
+          grep -q 'href="app/"' index.html || { echo 'FAIL the front page does not link to app/'; exit 1; }
+          if grep -q '<script' index.html; then echo 'FAIL the front page should not need JavaScript'; exit 1; fi
+          test -f app/index.html || { echo 'FAIL no app/index.html'; exit 1; }
+          grep -q 'src="main.js"' app/index.html || { echo 'FAIL app/index.html does not load main.js'; exit 1; }
+          grep -q 'href="styles.css"' app/index.html || { echo 'FAIL app/index.html does not load styles.css'; exit 1; }
+          echo 'ok  front page at / links to app/, and app/index.html loads main.js + styles.css'
+          echo 'ok  pages.yml publishes:'; ls -1 index.html app | head -5
+
+  design:
+    name: Palette tokens and contrast (real browser)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Serve the site on a thread per request
+        run: |
+          nohup python3 -c "from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler as H; ThreadingHTTPServer(('127.0.0.1', 5173), H).serve_forever()" > /dev/null 2>&1 &
+          sleep 2
+          curl -fsS -o /dev/null http://127.0.0.1:5173/app/ && echo "server is up"
+      - name: Find a browser, or install one
+        run: |
+          set -e
+          for c in google-chrome google-chrome-stable chromium chromium-browser; do
+            if command -v "$c" > /dev/null 2>&1; then echo "using $c"; echo "CHROME_PATH=$(command -v $c)" >> "$GITHUB_ENV"; exit 0; fi
+          done
+          for p in /opt/google/chrome/chrome /usr/lib/chromium/chromium; do
+            if [ -x "$p" ]; then echo "using $p"; echo "CHROME_PATH=$p" >> "$GITHUB_ENV"; exit 0; fi
+          done
+          echo "no browser in the runner image; installing Chrome for Testing"
+          npx --yes @puppeteer/browsers install chrome@stable --path "$HOME/.cache/chrome"
+          BIN=$(find "$HOME/.cache/chrome" -type f -name chrome | head -1)
+          echo "installed $BIN"
+          echo "CHROME_PATH=$BIN" >> "$GITHUB_ENV"
+      - name: Check the palettes landed intact, and no text falls below AA
+        env:
+          # The browser loads only pages this job serves itself, on an ephemeral runner.
+          CHROME_FLAGS: --no-sandbox
+        run: |
+          node -e "import('./scripts/cdp.mjs').then((m) => console.log('browser:', m.CHROME))"
+          node scripts/check-palette.mjs http://127.0.0.1:5173/app/ /tmp/palette-shots
+      - name: Keep the screenshots when a check fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: palette-screenshots
+          path: /tmp/palette-shots
+          if-no-files-found: ignore

@@ -1,0 +1,43 @@
+MIT License
+
+Copyright (c) 2026 Rookeepa contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Notes on the software
+
+**No third-party code.** Rookeepa contains no bundled libraries, fonts, icons or
+other third-party works. Every line of JavaScript, CSS and SVG is part of this
+repository and is covered by the licence above. The app loads no external
+resources at runtime.
+
+**Rookeepa is an independent project.** It is not affiliated with, endorsed by,
+sponsored by, or derived from any other accounting or bookkeeping product, and
+no code, artwork, text or data from another product is included. Account codes,
+account names, tax codes and report layouts are ordinary conventions of
+bookkeeping and of Australian tax reporting (Activity Statement boxes such as
+G1, 1A and 1B are published by the Australian Taxation Office), not the
+intellectual property of any vendor.
+
+**Not advice.** Rookeepa is bookkeeping software. It is not accounting, tax or
+financial advice, it is not connected to the Australian Taxation Office or any
+other revenue authority, and it does not lodge anything on your behalf. Check
+the figures with a registered accountant or tax agent before you rely on them.

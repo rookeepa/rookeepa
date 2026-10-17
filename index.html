@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rookeepa — free, local-first bookkeeping for small business</title>
+<meta name="description" content="Rookeepa is free, open-source bookkeeping for small business: invoices, bills, bank reconciliation, GST and financial reports. It runs entirely in your browser — no account, no subscription, nothing uploaded.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#00843D" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A1430" media="(prefers-color-scheme: dark)">
+<!-- Two icons with media queries instead of a script: this page stays JavaScript-free and
+     the browser still gets the mark that matches its own theme. -->
+<link rel="icon" href="app/assets/kangaroo/light/favicon.ico" type="image/x-icon" media="(prefers-color-scheme: light)">
+<link rel="icon" href="app/assets/kangaroo/dark/favicon.ico" type="image/x-icon" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="app/assets/kangaroo/light/app-icon-180.png">
+<link rel="stylesheet" href="app/assets/kangaroo/kangaroo.css">
+<style>
+  /* The same palettes the app uses: green and gold in light, the flag in dark. */
+  :root {
+    --bg: #FAF8F0; --surface: #FFFFFF; --border: #E2DCC3;
+    --text: #13261B; --muted: #4A5D51; --accent: #00843D; --accent-ink: #FFFFFF;
+    --soft: rgba(0, 132, 61, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0A1430; --surface: #111E42; --border: #26386E;
+      --text: #F2F5FA; --muted: #A9B4CC; --accent: #4F8DFF; --accent-ink: #0A1430;
+      --soft: rgba(79, 141, 255, 0.14);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 17px/1.65 ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 22px; }
+  a { color: var(--accent); }
+  a:focus-visible, .cta:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+  header { padding: 26px 0 0; }
+  .brand { display: flex; align-items: center; gap: 11px; font-weight: 650; letter-spacing: -0.01em; }
+  .brand small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); letter-spacing: 0.02em; }
+  .kangaroo-logo.kangaroo-brand { width: 34px; height: 34px; flex: 0 0 auto; }
+
+  /* The mark sits on the right, half off the edge of the window and behind the text:
+     large and cropped, so it reads as part of the page rather than an illustration
+     competing with the heading. The hero clips it, which also stops the cropped half
+     from adding a sideways scrollbar. */
+  .hero { position: relative; overflow: hidden; padding: 20px 0 8px; }
+  .hero .wrap { position: relative; z-index: 1; }
+  .kangaroo-logo.page-watermark {
+    /* Sized by height so it always fits the band and is only ever cropped at the side —
+       cropping it top and bottom too reads as a mistake rather than a deliberate bleed. */
+    position: absolute; top: 50%; right: 0; height: min(640px, 94%); width: auto; aspect-ratio: 1;
+    transform: translate(50%, -50%); opacity: 0.13;
+    pointer-events: none; user-select: none; z-index: 0;
+  }
+
+  main { padding-bottom: 8px; }
+  h1 { font-size: clamp(30px, 5.4vw, 42px); line-height: 1.15; letter-spacing: -0.02em; margin: 34px 0 14px; max-width: 22ch; }
+  .lede { font-size: clamp(18px, 2.4vw, 20px); color: var(--muted); margin: 0 0 26px; max-width: 34rem; }
+
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 0 0 10px; }
+  .cta {
+    display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+    background: var(--accent); color: var(--accent-ink); font-weight: 620;
+    padding: 13px 22px; border-radius: 11px; font-size: 16px;
+  }
+  .cta:hover { filter: brightness(1.06); }
+  .ghost { color: var(--text); text-decoration: none; border: 1px solid var(--border); padding: 12px 18px; border-radius: 11px; font-weight: 500; }
+  .ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .fine { color: var(--muted); font-size: 14.5px; margin: 12px 0 0; }
+
+  h2 { font-size: 20px; letter-spacing: -0.01em; margin: 46px 0 12px; }
+  ul { padding-left: 1.15em; margin: 0 0 6px; }
+  li { margin: 7px 0; }
+  li strong { font-weight: 620; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 15px 16px; }
+  .card h3 { margin: 0 0 6px; font-size: 15.5px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  .honest { background: var(--soft); border: 1px solid var(--border); border-radius: 12px; padding: 15px 17px; margin-top: 14px; }
+  .honest h3 { margin: 0 0 8px; font-size: 15.5px; }
+  .honest ul { margin: 0; }
+  .honest li { color: var(--text); font-size: 15.5px; }
+
+  footer { margin-top: 52px; padding: 20px 0 40px; border-top: 1px solid var(--border); color: var(--muted); font-size: 14.5px; }
+  footer a { color: var(--muted); }
+  footer a:hover { color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .kangaroo-logo.page-watermark { height: min(320px, 94%); opacity: 0.10; }
+    h1 { max-width: none; }
+  }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <div class="brand">
+    <span class="kangaroo-logo kangaroo-brand" aria-hidden="true">
+      <img class="kangaroo-light" src="app/assets/kangaroo/light/kangaroo-light-64.png" width="34" height="34" alt="">
+      <img class="kangaroo-dark" src="app/assets/kangaroo/dark/kangaroo-dark-64.png" width="34" height="34" alt="">
+    </span>
+    <span>Rookeepa<small>Free bookkeeping that runs in your browser</small></span>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="kangaroo-logo page-watermark" aria-hidden="true">
+    <img class="kangaroo-light" src="app/assets/kangaroo/light/kangaroo-light-1024.png" alt="">
+    <img class="kangaroo-dark" src="app/assets/kangaroo/dark/kangaroo-dark-1024.png" alt="">
+  </span>
+  <div class="wrap">
+    <h1>Small-business bookkeeping, with nothing to subscribe to.</h1>
+    <p class="lede">
+      Rookeepa does the everyday accounting a small business actually needs — invoices,
+      bills, contacts, bank reconciliation, GST and financial reports. It is free,
+      open source, and it runs entirely in your browser: your books never leave your
+      computer, because there is no server to send them to.
+    </p>
+
+    <div class="cta-row">
+      <a class="cta" href="app/">Open Rookeepa →</a>
+      <a class="ghost" href="https://github.com/rookeepa/rookeepa">Read the code</a>
+    </div>
+    <p class="fine">No account, no sign-up, no trial that expires. Nothing is uploaded.</p>
+  </div>
+</section>
+
+<main class="wrap">
+  <h2>What it does</h2>
+  <ul>
+    <li><strong>Invoices, quotes and credit notes</strong> — GST handled per line, your logo at the top, and a journal preview before you post anything.</li>
+    <li><strong>Bills, supplier credits and payments</strong> — what you owe, to whom, and when it is due.</li>
+    <li><strong>Bank reconciliation</strong> — import a statement CSV, categorise the lines, match them against your books, and let your own rules do the repeat ones.</li>
+    <li><strong>Recurring transactions</strong> — rent and subscriptions raised as drafts on schedule, for you to check before they reach your books.</li>
+    <li><strong>Statements of account</strong> — a printable statement for any customer, showing what they owe and how the balance moved.</li>
+    <li><strong>Real double-entry</strong> — a general ledger, a journal, and reports that reconcile to their control accounts.</li>
+    <li><strong>GST and an activity statement summary</strong> — the BAS boxes worked out from your own ledger, ready to check with your accountant.</li>
+    <li><strong>Jobs</strong> — track a cost or a sale against a job, per line, so one supplier invoice can carry materials for two jobs and the books still keep them apart.</li>
+    <li><strong>Attachments</strong> — keep the supplier's PDF or a photo of the receipt against a bank line. The files live in your browser and travel in their own export, so a books backup stays the size of the books.</li>
+    <li><strong>Backups you do not have to remember</strong> — point Rookeepa at a folder once and it writes your books and your files into it on a timer. Point a second computer at the same folder — a laptop and a desktop, work and home — and it opens the newest backup from there, with each computer writing its own file so they cannot overwrite each other. (Chrome and Edge on a desktop; see below.)</li>
+    <li><strong>Ten reports, on either basis</strong> — profit and loss, balance sheet, trial balance, aged debtors and creditors, cash flow, comparisons against the previous period or the same time last year, and a cash-basis view of the profit and loss.</li>
+  </ul>
+
+  <h2>Why it is different</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Free, and open source</h3>
+      <p>MIT licensed. There is no paid tier, no per-seat pricing and no data plan. You can read every line of it.</p>
+    </div>
+    <div class="card">
+      <h3>Local-first</h3>
+      <p>Your books are stored in your own browser and backed up as one JSON file you own. No telemetry, no analytics, no third parties.</p>
+    </div>
+    <div class="card">
+      <h3>Yours to keep running</h3>
+      <p>It is a static site with no build step and no dependencies. Clone it, host it yourself, and it keeps working even if this page disappears.</p>
+    </div>
+  </div>
+
+  <div class="honest">
+    <h3>What it is not</h3>
+    <ul>
+      <li>It is <strong>not connected to the ATO</strong> and does not lodge anything. It is a calculation aid — you or your accountant lodge.</li>
+      <li>It is <strong>not tax advice</strong>. Check the figures before you rely on them.</li>
+      <li>Your books live <strong>in one browser</strong>. Clearing site data or using a private window loses them, so export the backup file regularly and keep it somewhere safe — that file is your company's records. The optional automatic backup into a folder of your own needs <strong>Chrome or Edge on a desktop</strong> and only runs while Rookeepa is open: Safari and Firefox have no way for a page to write to a folder, and a browser cannot write to your disk in the background. Everywhere else, the export buttons are the answer.</li>
+      <li>It is a <strong>young project</strong>. Keep your own records as well, and tell us when something is wrong.</li>
+    </ul>
+  </div>
+</main>
+
+<footer class="wrap">
+  <p>
+    <a href="app/">Open the app</a> ·
+    <a href="https://github.com/rookeepa/rookeepa">GitHub</a> ·
+    MIT licensed. Built for Australian small business.
+  </p>
+
+      <p><a href="./faq.html">Questions people actually ask</a> — plain answers, including what it does not do.</p>
+    </footer>
+</body>
+</html>
