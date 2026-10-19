@@ -2445,9 +2445,13 @@ export async function render(ctx) {
    * The counts sit on the buttons rather than in a sentence, because the answer differs per action: of
    * four ticked lines, two may be categorisable and one un-reconcilable at the same time. An action with
    * nothing to act on is disabled showing a zero, so "why did nothing happen" never comes up.
+   *
+   * Counted over the lines on screen, which is what the bar's own total counts. Reading `allTxns` instead
+   * meant a line ticked and then filtered away still appeared in the button counts: the bar said "3 ticked"
+   * while the button said "Categorise (4)", with the fourth line nowhere to be seen.
    */
   function bulkBar(visible) {
-    const chosen = allTxns.filter((t) => ticked.has(t.id));
+    const chosen = visible.filter((t) => ticked.has(t.id));
     const has = (predicate) => chosen.filter(predicate);
     const canCategorise = has((t) => t.status === 'unreconciled');
     const canReverse = has((t) => t.status === 'posted' && t.journalId);
@@ -2700,6 +2704,9 @@ export async function render(ctx) {
     const rows = allTxns.filter(passesFilter).filter(passesQuery).filter(passesAmount).filter(passesDate);
     const open = expandedId ? rows.find((r) => r.id === expandedId) : null;
     const total = sum(rows.map((r) => r.amount || 0));
+    // A tick survives a redraw, but not the line leaving the account: delete a ticked line and its id would
+    // still be in the set, keeping the bar on screen for a line that no longer exists.
+    for (const id of [...ticked]) if (!allTxns.some((t) => t.id === id)) ticked.delete(id);
     // The bar sits above the table rather than inside it: a table with a toolbar row in it is a
     // table nobody can sort or scan.
     if (ticked.size) {
