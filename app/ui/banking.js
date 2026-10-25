@@ -2247,6 +2247,8 @@ export async function render(ctx) {
   // The open line's panel lives in its own host beside the table so that filling it needs no knowledge
   // of the table at all — the table stays a table.
   const searchField = input({
+    type: 'search',
+    enterkeyhint: 'search',
     placeholder: 'Search description or reference (-word excludes)',
     value: queryText,
     onInput: (v) => { queryText = v; query = v.trim().toLowerCase(); ctx.ui.set('bankQuery', v); drawRows(); },

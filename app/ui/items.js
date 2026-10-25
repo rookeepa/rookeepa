@@ -325,6 +325,7 @@ export async function render(ctx) {
     icon(ICONS.search, { size: 16 }),
     input({
       type: 'search',
+      enterkeyhint: 'search',
       placeholder: 'Search code, name or description',
       onInput: (v) => { query = v; drawTable(); },
     }));

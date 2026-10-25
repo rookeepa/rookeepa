@@ -262,6 +262,7 @@ export async function render(ctx) {
 
   const searchInput = input({
     type: 'search',
+    enterkeyhint: 'search',
     value: f.q,
     placeholder: 'Number, reference, customer, memo',
     onInput: (v) => { f.q = v; redraw(); },

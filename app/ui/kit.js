@@ -391,11 +391,11 @@ export function field({ label, input, hint, error, required, className = '', id,
 
 export function input({
   type = 'text', value = '', onInput, onChange, placeholder, name, id, min, max, step, disabled, className = '',
-  autofocus, inputmode, list, maxlength, required,
+  autofocus, inputmode, list, maxlength, required, enterkeyhint,
 } = {}) {
   const node = h('input', {
     type, value: value ?? '', placeholder, name, id, min, max, step, disabled, class: `input ${className}`.trim(),
-    autofocus, inputmode, list, maxlength, required,
+    autofocus, inputmode, list, maxlength, required, enterkeyhint,
   });
   if (onInput) node.addEventListener('input', () => onInput(node.value, node));
   if (onChange) node.addEventListener('change', () => onChange(node.value, node));
@@ -746,6 +746,9 @@ export function toast(message, kind = 'info', opts = {}) {
       opts.detail ? h('span', { class: 'toast-detail' }, opts.detail) : null),
     opts.actionLabel ? button({ label: opts.actionLabel, variant: 'ghost', size: 'sm', onClick: () => { opts.onAction?.(); node.remove(); } }) : null);
   host.appendChild(node);
+  // A transition, not a keyframe: toasts arrive in bursts, and a keyframe restarts from zero on every
+  // new one, which makes the stack jitter. One frame later so the browser has a start value to leave.
+  requestAnimationFrame(() => node.classList.add('is-visible'));
   const life = opts.duration || (kind === 'error' ? 9000 : 4000);
   setTimeout(() => { node.classList.add('leaving'); setTimeout(() => node.remove(), 250); }, life);
   return node;

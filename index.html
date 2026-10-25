@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Rookeepa — free, local-first bookkeeping for small business</title>
 <meta name="description" content="Rookeepa is free, open-source bookkeeping for small business: invoices, bills, bank reconciliation, GST and financial reports. It runs entirely in your browser — no account, no subscription, nothing uploaded.">
 <meta name="color-scheme" content="light dark">
@@ -67,9 +67,7 @@
     background: var(--accent); color: var(--accent-ink); font-weight: 620;
     padding: 13px 22px; border-radius: 11px; font-size: 16px;
   }
-  .cta:hover { filter: brightness(1.06); }
   .ghost { color: var(--text); text-decoration: none; border: 1px solid var(--border); padding: 12px 18px; border-radius: 11px; font-weight: 500; }
-  .ghost:hover { border-color: var(--accent); color: var(--accent); }
   .fine { color: var(--muted); font-size: 14.5px; margin: 12px 0 0; }
 
   h2 { font-size: 20px; letter-spacing: -0.01em; margin: 46px 0 12px; }
@@ -89,11 +87,17 @@
 
   footer { margin-top: 52px; padding: 20px 0 40px; border-top: 1px solid var(--border); color: var(--muted); font-size: 14.5px; }
   footer a { color: var(--muted); }
-  footer a:hover { color: var(--accent); }
 
   @media (max-width: 720px) {
     .kangaroo-logo.page-watermark { height: min(320px, 94%); opacity: 0.10; }
     h1 { max-width: none; }
+  }
+
+  /* Hover is an enhancement: a touch device fakes it and leaves it stuck. */
+  @media (hover: hover) and (pointer: fine) {
+    footer a:hover { color: var(--accent); }
+  .cta:hover { filter: brightness(1.06); }
+  .ghost:hover { border-color: var(--accent); color: var(--accent); }
   }
 </style>
 </head>
